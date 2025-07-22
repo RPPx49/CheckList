@@ -471,6 +471,10 @@
                         <div class="w-6 h-6 rounded-full bg-red-500 mr-3"></div>
                         <span class="font-medium">ขาด</span>
                     </button>
+                    <button class="status-option w-full py-3 px-4 rounded-lg text-left flex items-center border hover:bg-purple-50" data-status="paidfine">
+                        <div class="w-6 h-6 rounded-full bg-purple-500 mr-3"></div>
+                        <span class="font-medium">จ่ายค่าปรับแล้ว</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -613,23 +617,25 @@
             return now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
 
-        function getStatusColor(status) {
-            switch(status) {
-                case 'present': return 'bg-green-100 text-green-800';
-                case 'late': return 'bg-yellow-100 text-yellow-800';
-                case 'leave': return 'bg-blue-100 text-blue-800';
-                case 'absent': return 'bg-red-100 text-red-800';
-                default: return 'bg-gray-100 text-gray-800';
-            }
-        }
-
         function getStatusText(status) {
             switch(status) {
                 case 'present': return 'มาเรียน';
                 case 'late': return 'มาสาย';
                 case 'leave': return 'ลา';
                 case 'absent': return 'ขาด';
+                case 'paidfine': return 'จ่ายค่าปรับแล้ว';
                 default: return 'ไม่มีข้อมูล';
+            }
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'present': return 'bg-green-100 text-green-800';
+                case 'late': return 'bg-yellow-100 text-yellow-800';
+                case 'leave': return 'bg-blue-100 text-blue-800';
+                case 'absent': return 'bg-red-100 text-red-800';
+                case 'paidfine': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
             }
         }
 
