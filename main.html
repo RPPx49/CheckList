@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบเช็คชื่อสมาชิก</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="app" class="min-h-screen">
+        <!-- Welcome Page -->
+        <div id="welcomePage" class="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+            <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md fade-in mb-4">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">ระบบเช็คชื่อสมาชิก</h1>
+                    <p class="text-gray-600 mt-2">เลือกชื่อของคุณเพื่อดูข้อมูล</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="memberSelect">เลือกชื่อของคุณ</label>
+                        <select id="memberSelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">-- เลือกชื่อของคุณ --</option>
+                            <!-- Member options will be populated here -->
+                        </select>
+                    </div>
+                    <button id="viewMemberBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">ดูข้อมูลของฉัน</button>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md fade-in">
+                <div class="text-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">สำหรับผู้ดูแลระบบ</h2>
+                </div>
+                <button id="adminLoginBtn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">เข้าสู่ระบบสำหรับผู้ดูแล</button>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600 p-4">
+            <div class="bg-white rounded-xl shadow-xl p-8 w-full max-w-md fade-in">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">เข้าสู่ระบบ</h1>
+                    <button id="backToWelcomeBtn" class="text-blue-600 hover:text-blue-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="studentId">รหัสนักศึกษา/รหัสผู้ดูแล</label>
+                        <input type="text" id="studentId" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสนักศึกษา/รหัสผู้ดูแล">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 mb-2" for="password">รหัสผ่าน</label>
+                        <input type="password" id="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสผ่าน">
+                    </div>
+                    <button id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">เข้าสู่ระบบ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Member Dashboard -->
+        <div id="memberDashboard" class="hidden min-h-screen bg-gray-100">
+            <nav class="bg-white shadow-md">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <span class="text-xl font-semibold text-blue-600">ระบบเช็คชื่อสมาชิก</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span id="memberName" class="mr-4 text-gray-700"></span>
+                            <span id="memberClass" class="mr-4 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"></span>
+                            <button id="memberLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">ออกจากระบบ</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">ข้อมูลส่วนตัว</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600">รหัสนักศึกษา: <span id="memberStudentId" class="font-medium text-gray-800"></span></p>
+                            <p class="text-gray-600">ชื่อ-นามสกุล: <span id="memberFullName" class="font-medium text-gray-800"></span></p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">ห้อง: <span id="memberClassDetail" class="font-medium text-gray-800"></span></p>
+                            <p class="text-gray-600">สถานะ: <span id="memberStatus" class="font-medium text-green-600"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">ประวัติการเข้าร่วมกิจกรรม</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อกิจกรรม</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาที่เช็คชื่อ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberActivityList" class="bg-white divide-y divide-gray-200">
+                                <!-- Activity history will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leader Dashboard -->
+        <div id="leaderDashboard" class="hidden min-h-screen bg-gray-100">
+            <nav class="bg-white shadow-md">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <span class="text-xl font-semibold text-blue-600">ระบบเช็คชื่อสมาชิก (หัวหน้าห้อง)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span id="leaderName" class="mr-4 text-gray-700"></span>
+                            <span id="leaderClass" class="mr-4 px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800"></span>
+                            <button id="leaderLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">ออกจากระบบ</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Add Member Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">เพิ่มสมาชิกใหม่</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="newStudentId">รหัสนักศึกษา</label>
+                                    <input type="text" id="newStudentId" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสนักศึกษา">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="newFullName">ชื่อ-นามสกุล</label>
+                                    <input type="text" id="newFullName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อ-นามสกุล">
+                                </div>
+                                <button id="addMemberBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">เพิ่มสมาชิก</button>
+                            </div>
+                        </div>
+
+                        <!-- Create Activity Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างกิจกรรมใหม่</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="activityName">ชื่อกิจกรรม</label>
+                                    <input type="text" id="activityName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อกิจกรรม">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="activityDate">วันที่</label>
+                                    <input type="date" id="activityDate" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button id="createActivityBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">สร้างกิจกรรม</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Activities Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">กิจกรรมทั้งหมด</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อกิจกรรม</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="activityList" class="bg-white divide-y divide-gray-200">
+                                        <!-- Activities will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Members Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">รายชื่อสมาชิกทั้งหมด</h2>
+                            <div class="mb-4">
+                                <select id="classFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">ทุกห้อง</option>
+                                    <option value="1">ห้อง 1</option>
+                                    <option value="2">ห้อง 2</option>
+                                </select>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสนักศึกษา</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ห้อง</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="memberList" class="bg-white divide-y divide-gray-200">
+                                        <!-- Members will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="hidden min-h-screen bg-gray-100">
+            <nav class="bg-white shadow-md">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between h-16">
+                        <div class="flex items-center">
+                            <span class="text-xl font-semibold text-purple-600">ระบบเช็คชื่อสมาชิก (ผู้ดูแลระบบ)</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span id="adminName" class="mr-4 text-gray-700"></span>
+                            <span class="mr-4 px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">ผู้ดูแลระบบ</span>
+                            <button id="adminLogout" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">ออกจากระบบ</button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Add Member Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">เพิ่มสมาชิกใหม่</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="adminNewStudentId">รหัสนักศึกษา</label>
+                                    <input type="text" id="adminNewStudentId" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกรหัสนักศึกษา">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="adminNewFullName">ชื่อ-นามสกุล</label>
+                                    <input type="text" id="adminNewFullName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อ-นามสกุล">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="adminNewRole">สถานะ</label>
+                                    <select id="adminNewRole" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="member">สมาชิก</option>
+                                        <option value="leader">หัวหน้าห้อง</option>
+                                    </select>
+                                </div>
+                                <button id="adminAddMemberBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">เพิ่มสมาชิก</button>
+                            </div>
+                        </div>
+
+                        <!-- Create Activity Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างกิจกรรมใหม่</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="adminActivityName">ชื่อกิจกรรม</label>
+                                    <input type="text" id="adminActivityName" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="กรอกชื่อกิจกรรม">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="adminActivityDate">วันที่</label>
+                                    <input type="date" id="adminActivityDate" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <button id="adminCreateActivityBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">สร้างกิจกรรม</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Activities Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">กิจกรรมทั้งหมด</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อกิจกรรม</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">วันที่</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminActivityList" class="bg-white divide-y divide-gray-200">
+                                        <!-- Activities will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Members Card -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">จัดการสมาชิกทั้งหมด</h2>
+                            <div class="mb-4 flex space-x-4">
+                                <select id="adminClassFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">ทุกห้อง</option>
+                                    <option value="1">ห้อง 1</option>
+                                    <option value="2">ห้อง 2</option>
+                                </select>
+                                <select id="adminRoleFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="all">ทุกสถานะ</option>
+                                    <option value="member">สมาชิก</option>
+                                    <option value="leader">หัวหน้าห้อง</option>
+                                </select>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสนักศึกษา</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ห้อง</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="adminMemberList" class="bg-white divide-y divide-gray-200">
+                                        <!-- Members will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Attendance Modal -->
+        <div id="attendanceModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-4xl fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800" id="attendanceModalTitle">เช็คชื่อกิจกรรม</h2>
+                    <button id="closeAttendanceModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-600" id="attendanceModalDate"></p>
+                </div>
+
+                <div id="attendanceClassFilterBar" class="mb-4 flex space-x-2">
+                    <button id="attendanceClassAll" class="px-4 py-2 rounded bg-gray-200 text-gray-800 font-medium">ทุกห้อง</button>
+                    <button id="attendanceClass1" class="px-4 py-2 rounded bg-blue-200 text-blue-800 font-medium">ห้อง 1</button>
+                    <button id="attendanceClass2" class="px-4 py-2 rounded bg-green-200 text-green-800 font-medium">ห้อง 2</button>
+                </div>
+
+                <div class="overflow-y-auto" style="max-height: 400px;">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลำดับ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสนักศึกษา</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ห้อง</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เวลาที่เช็ค</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendanceList" class="bg-white divide-y divide-gray-200">
+                            <!-- Attendance list will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-6 flex justify-end">
+                    <button id="saveAttendanceBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition duration-300">บันทึก</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Selection Modal -->
+        <div id="statusModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-md fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">เลือกสถานะการเข้าร่วม</h2>
+                    <button id="closeStatusModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-gray-600" id="statusModalStudentName"></p>
+                </div>
+
+                <div class="space-y-3">
+                    <button class="status-option w-full py-3 px-4 rounded-lg text-left flex items-center border hover:bg-green-50" data-status="present">
+                        <div class="w-6 h-6 rounded-full bg-green-500 mr-3"></div>
+                        <span class="font-medium">มาเรียน</span>
+                    </button>
+                    <button class="status-option w-full py-3 px-4 rounded-lg text-left flex items-center border hover:bg-yellow-50" data-status="late">
+                        <div class="w-6 h-6 rounded-full bg-yellow-500 mr-3"></div>
+                        <span class="font-medium">มาสาย</span>
+                    </button>
+                    <button class="status-option w-full py-3 px-4 rounded-lg text-left flex items-center border hover:bg-blue-50" data-status="leave">
+                        <div class="w-6 h-6 rounded-full bg-blue-500 mr-3"></div>
+                        <span class="font-medium">ลา</span>
+                    </button>
+                    <button class="status-option w-full py-3 px-4 rounded-lg text-left flex items-center border hover:bg-red-50" data-status="absent">
+                        <div class="w-6 h-6 rounded-full bg-red-500 mr-3"></div>
+                        <span class="font-medium">ขาด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBl4obML6xYEvIl1XfHB0S1OCAx2LayZIQ",
+            authDomain: "checklist-ad9ee.firebaseapp.com",
+            databaseURL: "https://checklist-ad9ee-default-rtdb.firebaseio.com",
+            projectId: "checklist-ad9ee",
+            storageBucket: "checklist-ad9ee.firebasestorage.app",
+            messagingSenderId: "1073198516932",
+            appId: "1:1073198516932:web:dc075888b15fb0777d9791",
+            measurementId: "G-HS9EL7Z3B5"
+            };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Global variables
+        let currentUser = null;
+        let currentActivity = null;
+        let currentStudentForStatus = null;
+        let users = [];
+        let activities = [];
+        let attendance = [];
+
+        // Show loading spinner
+        function showLoading() {
+            document.getElementById('loading').style.display = 'flex';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        // Initialize data from Firebase
+        async function initializeData() {
+            showLoading();
+            try {
+                // Load users
+                const usersSnapshot = await database.ref('users').once('value');
+                const usersData = usersSnapshot.val();
+                if (usersData) {
+                    users = Object.values(usersData);
+                } else {
+                    // If no users exist, create default admin user
+                    const defaultUsers = [
+                        { id: "RPPx", name: "ผู้ดูแลระบบ", password: "1234", role: "admin", class: "" }
+                    ];
+                    
+                    // Save default users to Firebase
+                    const usersRef = database.ref('users');
+                    for (const user of defaultUsers) {
+                        await usersRef.child(user.id).set(user);
+                    }
+                    users = defaultUsers;
+                }
+
+                // Load activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const activitiesData = activitiesSnapshot.val();
+                if (activitiesData) {
+                    activities = Object.values(activitiesData);
+                } else {
+                    // If no activities exist, create default activities
+                    const defaultActivities = [
+                        { id: 1, name: "ปฐมนิเทศนักศึกษาใหม่", date: "2023-06-15" },
+                        { id: 2, name: "อบรมการใช้ห้องสมุด", date: "2023-06-20" }
+                    ];
+                    
+                    // Save default activities to Firebase
+                    const activitiesRef = database.ref('activities');
+                    for (const activity of defaultActivities) {
+                        await activitiesRef.child(activity.id).set(activity);
+                    }
+                    activities = defaultActivities;
+                }
+
+                // Load attendance
+                const attendanceSnapshot = await database.ref('attendance').once('value');
+                const attendanceData = attendanceSnapshot.val();
+                if (attendanceData) {
+                    attendance = Object.values(attendanceData);
+                } else {
+                    // If no attendance records exist, create default attendance
+                    const defaultAttendance = [
+                        { id: "1_67414401001", activityId: 1, studentId: "67414401001", status: "present", timestamp: "09:15:30" },
+                        { id: "1_67414401002", activityId: 1, studentId: "67414401002", status: "late", timestamp: "09:45:22" },
+                        { id: "1_67414401003", activityId: 1, studentId: "67414401003", status: "present", timestamp: "08:55:17" },
+                        { id: "1_67414402001", activityId: 1, studentId: "67414402001", status: "absent", timestamp: "" },
+                        { id: "1_67414402002", activityId: 1, studentId: "67414402002", status: "leave", timestamp: "08:30:45" },
+                        { id: "1_67414402003", activityId: 1, studentId: "67414402003", status: "present", timestamp: "08:50:33" },
+                        { id: "2_67414401001", activityId: 2, studentId: "67414401001", status: "present", timestamp: "13:05:12" },
+                        { id: "2_67414401002", activityId: 2, studentId: "67414401002", status: "absent", timestamp: "" },
+                        { id: "2_67414401003", activityId: 2, studentId: "67414401003", status: "present", timestamp: "12:55:40" },
+                        { id: "2_67414402001", activityId: 2, studentId: "67414402001", status: "late", timestamp: "13:30:22" },
+                        { id: "2_67414402002", activityId: 2, studentId: "67414402002", status: "present", timestamp: "13:02:18" },
+                        { id: "2_67414402003", activityId: 2, studentId: "67414402003", status: "present", timestamp: "12:50:05" }
+                    ];
+                    
+                    // Save default attendance to Firebase
+                    const attendanceRef = database.ref('attendance');
+                    for (const record of defaultAttendance) {
+                        await attendanceRef.child(record.id).set(record);
+                    }
+                    attendance = defaultAttendance;
+                }
+
+                // Initialize welcome page
+                initWelcomePage();
+                hideLoading();
+            } catch (error) {
+                console.error("Error initializing data:", error);
+                alert("เกิดข้อผิดพลาดในการโหลดข้อมูล กรุณาลองใหม่อีกครั้ง");
+                hideLoading();
+            }
+        }
+
+        // Helper functions
+        function getClassFromStudentId(studentId) {
+            // Extract class number from the 7th digit of student ID
+            // Make sure it's either 1 or 2
+            const classDigit = studentId.charAt(7);
+            return (classDigit === '1' || classDigit === '2') ? classDigit : "1"; // Default to class 1 if not valid
+        }
+
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('th-TH', options);
+        }
+
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'present': return 'bg-green-100 text-green-800';
+                case 'late': return 'bg-yellow-100 text-yellow-800';
+                case 'leave': return 'bg-blue-100 text-blue-800';
+                case 'absent': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function getStatusText(status) {
+            switch(status) {
+                case 'present': return 'มาเรียน';
+                case 'late': return 'มาสาย';
+                case 'leave': return 'ลา';
+                case 'absent': return 'ขาด';
+                default: return 'ไม่มีข้อมูล';
+            }
+        }
+
+        function getRoleText(role) {
+            switch(role) {
+                case 'admin': return 'ผู้ดูแลระบบ';
+                case 'leader': return 'หัวหน้าห้อง';
+                case 'member': return 'สมาชิก';
+                default: return 'ไม่ระบุ';
+            }
+        }
+
+        function getRoleColor(role) {
+            switch(role) {
+                case 'admin': return 'bg-purple-100 text-purple-800';
+                case 'leader': return 'bg-green-100 text-green-800';
+                case 'member': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        // Initialize welcome page
+        function initWelcomePage() {
+            const memberSelect = document.getElementById('memberSelect');
+            memberSelect.innerHTML = '<option value="">-- เลือกชื่อของคุณ --</option>';
+            
+            // Add only regular members and leaders (not admin)
+            users.filter(user => user.role !== 'admin').forEach(user => {
+                const option = document.createElement('option');
+                option.value = user.id;
+                option.textContent = `${user.name} (${user.id})`;
+                memberSelect.appendChild(option);
+            });
+        }
+
+        // View member info without login
+        document.getElementById('viewMemberBtn').addEventListener('click', function() {
+            const selectedId = document.getElementById('memberSelect').value;
+            
+            if (!selectedId) {
+                alert('กรุณาเลือกชื่อของคุณ');
+                return;
+            }
+            
+            const user = users.find(u => u.id === selectedId);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('welcomePage').classList.add('hidden');
+                document.getElementById('memberDashboard').classList.remove('hidden');
+                
+                document.getElementById('memberName').textContent = user.name;
+                document.getElementById('memberClass').textContent = `ห้อง ${user.class}`;
+                document.getElementById('memberStudentId').textContent = user.id;
+                document.getElementById('memberFullName').textContent = user.name;
+                document.getElementById('memberClassDetail').textContent = `ห้อง ${user.class}`;
+                document.getElementById('memberStatus').textContent = getRoleText(user.role);
+                
+                loadMemberActivities();
+            }
+        });
+
+        // Admin login button
+        document.getElementById('adminLoginBtn').addEventListener('click', function() {
+            document.getElementById('welcomePage').classList.add('hidden');
+            document.getElementById('loginPage').classList.remove('hidden');
+        });
+
+        // Back to welcome page
+        document.getElementById('backToWelcomeBtn').addEventListener('click', function() {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('welcomePage').classList.remove('hidden');
+            document.getElementById('studentId').value = '';
+            document.getElementById('password').value = '';
+        });
+
+        // Login functionality
+        document.getElementById('loginBtn').addEventListener('click', async function() {
+            showLoading();
+            const studentId = document.getElementById('studentId').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                // Get the latest user data
+                const userSnapshot = await database.ref('users/' + studentId).once('value');
+                const user = userSnapshot.val();
+                
+                if (user && user.password === password) {
+                    currentUser = user;
+                    document.getElementById('loginPage').classList.add('hidden');
+                    
+                    if (user.role === 'admin') {
+                        // Show admin dashboard
+                        document.getElementById('adminDashboard').classList.remove('hidden');
+                        document.getElementById('adminName').textContent = user.name;
+                        loadAdminActivities();
+                        loadAdminMembers();
+                    } else if (user.role === 'leader') {
+                        // Show leader dashboard
+                        document.getElementById('leaderDashboard').classList.remove('hidden');
+                        document.getElementById('leaderName').textContent = user.name;
+                        document.getElementById('leaderClass').textContent = `ห้อง ${user.class}`;
+                        loadActivities();
+                        loadMembers();
+                    } else {
+                        // Show member dashboard
+                        document.getElementById('memberDashboard').classList.remove('hidden');
+                        document.getElementById('memberName').textContent = user.name;
+                        document.getElementById('memberClass').textContent = `ห้อง ${user.class}`;
+                        document.getElementById('memberStudentId').textContent = user.id;
+                        document.getElementById('memberFullName').textContent = user.name;
+                        document.getElementById('memberClassDetail').textContent = `ห้อง ${user.class}`;
+                        document.getElementById('memberStatus').textContent = getRoleText(user.role);
+                        loadMemberActivities();
+                    }
+                } else {
+                    alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง');
+                }
+            } catch (error) {
+                console.error("Login error:", error);
+                alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        });
+
+        // Logout functionality
+        document.getElementById('memberLogout').addEventListener('click', logout);
+        document.getElementById('leaderLogout').addEventListener('click', logout);
+        document.getElementById('adminLogout').addEventListener('click', logout);
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('memberDashboard').classList.add('hidden');
+            document.getElementById('leaderDashboard').classList.add('hidden');
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('welcomePage').classList.remove('hidden');
+            
+            // Reset form fields
+            document.getElementById('memberSelect').value = '';
+            if (document.getElementById('studentId')) {
+                document.getElementById('studentId').value = '';
+                document.getElementById('password').value = '';
+            }
+        }
+
+        // Member dashboard functionality
+        async function loadMemberActivities() {
+            showLoading();
+            try {
+                // Get the latest attendance data for this user
+                const attendanceSnapshot = await database.ref('attendance').orderByChild('studentId').equalTo(currentUser.id).once('value');
+                const userAttendance = attendanceSnapshot.val() ? Object.values(attendanceSnapshot.val()) : [];
+                
+                // Get the latest activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                
+                const memberActivityList = document.getElementById('memberActivityList');
+                memberActivityList.innerHTML = '';
+                
+                allActivities.forEach((activity, index) => {
+                    const attendanceRecord = userAttendance.find(a => a.activityId === activity.id);
+                    const status = attendanceRecord ? attendanceRecord.status : 'ไม่มีข้อมูล';
+                    const timestamp = attendanceRecord && attendanceRecord.timestamp ? attendanceRecord.timestamp : '-';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${activity.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(activity.date)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${timestamp}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(status)}">
+                                ${getStatusText(status)}
+                            </span>
+                        </td>
+                    `;
+                    memberActivityList.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error loading member activities:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลกิจกรรม กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        // Leader dashboard functionality
+        async function loadActivities() {
+            showLoading();
+            try {
+                // Get the latest activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                
+                const activityList = document.getElementById('activityList');
+                activityList.innerHTML = '';
+                
+                allActivities.forEach((activity, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${activity.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(activity.date)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3 attendance-btn" data-id="${activity.id}">เช็คชื่อ</button>
+                        </td>
+                    `;
+                    activityList.appendChild(row);
+                });
+
+                // Add event listeners to attendance buttons
+                document.querySelectorAll('.attendance-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const activityId = parseInt(this.getAttribute('data-id'));
+                        openAttendanceModal(activityId);
+                    });
+                });
+            } catch (error) {
+                console.error("Error loading activities:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลกิจกรรม กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        async function loadMembers() {
+            showLoading();
+            try {
+                // Get the latest users
+                const usersSnapshot = await database.ref('users').once('value');
+                const allUsers = usersSnapshot.val() ? Object.values(usersSnapshot.val()) : [];
+                
+                const memberList = document.getElementById('memberList');
+                memberList.innerHTML = '';
+                
+                const classFilter = document.getElementById('classFilter').value;
+                
+                let filteredUsers = allUsers.filter(user => user.role !== 'admin'); // Exclude admin from regular view
+                if (classFilter !== 'all') {
+                    filteredUsers = filteredUsers.filter(user => user.class === classFilter);
+                }
+                
+                // For leaders, only show members of their class
+                if (currentUser && currentUser.role === 'leader') {
+                    filteredUsers = filteredUsers.filter(user => user.class === currentUser.class);
+                }
+                
+                filteredUsers.forEach((user, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ห้อง ${user.class}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}">
+                                ${getRoleText(user.role)}
+                            </span>
+                        </td>
+                    `;
+                    memberList.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Error loading members:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        // Admin dashboard functionality
+        async function loadAdminActivities() {
+            showLoading();
+            try {
+                // Get the latest activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                
+                const adminActivityList = document.getElementById('adminActivityList');
+                adminActivityList.innerHTML = '';
+                
+                allActivities.forEach((activity, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${activity.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(activity.date)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="text-blue-600 hover:text-blue-900 mr-3 admin-attendance-btn" data-id="${activity.id}">เช็คชื่อ</button>
+                        </td>
+                    `;
+                    adminActivityList.appendChild(row);
+                });
+
+                // Add event listeners to attendance buttons
+                document.querySelectorAll('.admin-attendance-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const activityId = parseInt(this.getAttribute('data-id'));
+                        openAttendanceModal(activityId);
+                    });
+                });
+            } catch (error) {
+                console.error("Error loading admin activities:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลกิจกรรม กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        async function loadAdminMembers() {
+            showLoading();
+            try {
+                // Get the latest users
+                const usersSnapshot = await database.ref('users').once('value');
+                const allUsers = usersSnapshot.val() ? Object.values(usersSnapshot.val()) : [];
+                
+                const adminMemberList = document.getElementById('adminMemberList');
+                adminMemberList.innerHTML = '';
+                
+                const classFilter = document.getElementById('adminClassFilter').value;
+                const roleFilter = document.getElementById('adminRoleFilter').value;
+                
+                let filteredUsers = allUsers.filter(user => user.role !== 'admin'); // Exclude admin from the list
+                
+                if (classFilter !== 'all') {
+                    filteredUsers = filteredUsers.filter(user => user.class === classFilter);
+                }
+                
+                if (roleFilter !== 'all') {
+                    filteredUsers = filteredUsers.filter(user => user.role === roleFilter);
+                }
+                
+                filteredUsers.forEach((user, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ห้อง ${user.class}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor(user.role)}">
+                                ${getRoleText(user.role)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            ${user.role === 'leader' ? 
+                                `<button class="text-blue-600 hover:text-blue-900 change-role-btn" data-id="${user.id}" data-role="member">ลดระดับเป็นสมาชิก</button>` : 
+                                `<button class="text-green-600 hover:text-green-900 change-role-btn" data-id="${user.id}" data-role="leader">เลื่อนระดับเป็นหัวหน้าห้อง</button>`
+                            }
+                        </td>
+                    `;
+                    adminMemberList.appendChild(row);
+                });
+
+                // Add event listeners to change role buttons
+                document.querySelectorAll('.change-role-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const studentId = this.getAttribute('data-id');
+                        const newRole = this.getAttribute('data-role');
+                        changeUserRole(studentId, newRole);
+                    });
+                });
+            } catch (error) {
+                console.error("Error loading admin members:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลสมาชิก กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        async function changeUserRole(studentId, newRole) {
+            showLoading();
+            try {
+                // Get the user
+                const userSnapshot = await database.ref('users/' + studentId).once('value');
+                const user = userSnapshot.val();
+                
+                if (user) {
+                    // Update the role
+                    await database.ref('users/' + studentId).update({ role: newRole });
+                    
+                    alert(`เปลี่ยนสถานะของ ${user.name} เป็น ${getRoleText(newRole)} เรียบร้อยแล้ว`);
+                    loadAdminMembers();
+                }
+            } catch (error) {
+                console.error("Error changing user role:", error);
+                alert('เกิดข้อผิดพลาดในการเปลี่ยนสถานะผู้ใช้ กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        // Class and role filter functionality
+        document.getElementById('classFilter').addEventListener('change', loadMembers);
+        document.getElementById('adminClassFilter').addEventListener('change', loadAdminMembers);
+        document.getElementById('adminRoleFilter').addEventListener('change', loadAdminMembers);
+
+        // Add member functionality (Leader)
+        document.getElementById('addMemberBtn').addEventListener('click', async function() {
+            const newStudentId = document.getElementById('newStudentId').value;
+            const newFullName = document.getElementById('newFullName').value;
+            
+            if (!newStudentId || !newFullName) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            if (newStudentId.length !== 11) {
+                alert('รหัสนักศึกษาต้องมี 11 หลัก');
+                return;
+            }
+            
+            showLoading();
+            try {
+                // Check if user already exists
+                const userSnapshot = await database.ref('users/' + newStudentId).once('value');
+                if (userSnapshot.exists()) {
+                    alert('รหัสนักศึกษานี้มีอยู่ในระบบแล้ว');
+                    hideLoading();
+                    return;
+                }
+                
+                const classNumber = getClassFromStudentId(newStudentId);
+                
+                // Create new user
+                const newUser = {
+                    id: newStudentId,
+                    name: newFullName,
+                    password: "1234", // Default password
+                    role: "member",
+                    class: classNumber
+                };
+                
+                // Save to Firebase
+                await database.ref('users/' + newStudentId).set(newUser);
+                
+                // Initialize attendance records for this user for all existing activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                
+                for (const activity of allActivities) {
+                    const attendanceId = `${activity.id}_${newStudentId}`;
+                    const attendanceRecord = {
+                        id: attendanceId,
+                        activityId: activity.id,
+                        studentId: newStudentId,
+                        status: "absent",
+                        timestamp: ""
+                    };
+                    await database.ref('attendance/' + attendanceId).set(attendanceRecord);
+                }
+                
+                alert('เพิ่มสมาชิกใหม่เรียบร้อยแล้ว');
+                document.getElementById('newStudentId').value = '';
+                document.getElementById('newFullName').value = '';
+
+                // Refresh data
+                await initializeData();
+                loadMembers();
+            } catch (error) {
+                console.error("Error adding member:", error);
+                alert('เกิดข้อผิดพลาดในการเพิ่มสมาชิก กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        });
+
+        // Add member functionality (Admin)
+        document.getElementById('adminAddMemberBtn').addEventListener('click', async function() {
+            const newStudentId = document.getElementById('adminNewStudentId').value;
+            const newFullName = document.getElementById('adminNewFullName').value;
+            const newRole = document.getElementById('adminNewRole').value;
+            
+            if (!newStudentId || !newFullName) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            if (newStudentId.length !== 11) {
+                alert('รหัสนักศึกษาต้องมี 11 หลัก');
+                return;
+            }
+            
+            showLoading();
+            try {
+                // Check if user already exists
+                const userSnapshot = await database.ref('users/' + newStudentId).once('value');
+                if (userSnapshot.exists()) {
+                    alert('รหัสนักศึกษานี้มีอยู่ในระบบแล้ว');
+                    hideLoading();
+                    return;
+                }
+                
+                const classNumber = getClassFromStudentId(newStudentId);
+                
+                // Create new user
+                const newUser = {
+                    id: newStudentId,
+                    name: newFullName,
+                    password: "1234", // Default password
+                    role: newRole,
+                    class: classNumber
+                };
+                
+                // Save to Firebase
+                await database.ref('users/' + newStudentId).set(newUser);
+                
+                // Initialize attendance records for this user for all existing activities
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                
+                for (const activity of allActivities) {
+                    const attendanceId = `${activity.id}_${newStudentId}`;
+                    const attendanceRecord = {
+                        id: attendanceId,
+                        activityId: activity.id,
+                        studentId: newStudentId,
+                        status: "absent",
+                        timestamp: ""
+                    };
+                    await database.ref('attendance/' + attendanceId).set(attendanceRecord);
+                }
+                
+                alert('เพิ่มสมาชิกใหม่เรียบร้อยแล้ว');
+                document.getElementById('adminNewStudentId').value = '';
+                document.getElementById('adminNewFullName').value = '';
+                document.getElementById('adminNewRole').value = 'member';
+                
+                // Refresh data
+                await initializeData();
+                loadAdminMembers();
+            } catch (error) {
+                console.error("Error adding member:", error);
+                alert('เกิดข้อผิดพลาดในการเพิ่มสมาชิก กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        });
+
+        // Create activity functionality (Leader)
+        document.getElementById('createActivityBtn').addEventListener('click', async function() {
+            const activityName = document.getElementById('activityName').value;
+            const activityDate = document.getElementById('activityDate').value;
+            
+            if (!activityName || !activityDate) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                // Get the latest activities to determine the next ID
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                const newId = allActivities.length > 0 ? Math.max(...allActivities.map(a => a.id)) + 1 : 1;
+                
+                // Create new activity
+                const newActivity = {
+                    id: newId,
+                    name: activityName,
+                    date: activityDate
+                };
+                
+                // Save to Firebase
+                await database.ref('activities/' + newId).set(newActivity);
+                
+                // Initialize attendance records for all users
+                const usersSnapshot = await database.ref('users').once('value');
+                const allUsers = usersSnapshot.val() ? Object.values(usersSnapshot.val()) : [];
+                
+                for (const user of allUsers.filter(u => u.role !== 'admin')) {
+                    const attendanceId = `${newId}_${user.id}`;
+                    const attendanceRecord = {
+                        id: attendanceId,
+                        activityId: newId,
+                        studentId: user.id,
+                        status: "absent",
+                        timestamp: ""
+                    };
+                    await database.ref('attendance/' + attendanceId).set(attendanceRecord);
+                }
+                
+                alert('สร้างกิจกรรมใหม่เรียบร้อยแล้ว');
+                document.getElementById('activityName').value = '';
+                document.getElementById('activityDate').value = '';
+                
+                // Refresh data
+                await initializeData();
+                loadMembers();
+                loadActivities();
+            } catch (error) {
+                console.error("Error creating activity:", error);
+                alert('เกิดข้อผิดพลาดในการสร้างกิจกรรม กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        });
+
+        // Create activity functionality (Admin)
+        document.getElementById('adminCreateActivityBtn').addEventListener('click', async function() {
+            const activityName = document.getElementById('adminActivityName').value;
+            const activityDate = document.getElementById('adminActivityDate').value;
+            
+            if (!activityName || !activityDate) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+            
+            showLoading();
+            try {
+                // Get the latest activities to determine the next ID
+                const activitiesSnapshot = await database.ref('activities').once('value');
+                const allActivities = activitiesSnapshot.val() ? Object.values(activitiesSnapshot.val()) : [];
+                const newId = allActivities.length > 0 ? Math.max(...allActivities.map(a => a.id)) + 1 : 1;
+                
+                // Create new activity
+                const newActivity = {
+                    id: newId,
+                    name: activityName,
+                    date: activityDate
+                };
+                
+                // Save to Firebase
+                await database.ref('activities/' + newId).set(newActivity);
+                
+                // Initialize attendance records for all users
+                const usersSnapshot = await database.ref('users').once('value');
+                const allUsers = usersSnapshot.val() ? Object.values(usersSnapshot.val()) : [];
+                
+                for (const user of allUsers.filter(u => u.role !== 'admin')) {
+                    const attendanceId = `${newId}_${user.id}`;
+                    const attendanceRecord = {
+                        id: attendanceId,
+                        activityId: newId,
+                        studentId: user.id,
+                        status: "absent",
+                        timestamp: ""
+                    };
+                    await database.ref('attendance/' + attendanceId).set(attendanceRecord);
+                }
+                
+                alert('สร้างกิจกรรมใหม่เรียบร้อยแล้ว');
+                document.getElementById('adminActivityName').value = '';
+                document.getElementById('adminActivityDate').value = '';
+                
+                // Refresh data
+                await initializeData();
+                loadAdminActivities();
+            } catch (error) {
+                console.error("Error creating activity:", error);
+                alert('เกิดข้อผิดพลาดในการสร้างกิจกรรม กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        });
+
+        // Attendance modal functionality
+        async function openAttendanceModal(activityId) {
+            showLoading();
+            try {
+                // Get the activity
+                const activitySnapshot = await database.ref('activities/' + activityId).once('value');
+                currentActivity = activitySnapshot.val();
+                
+                if (!currentActivity) {
+                    alert('ไม่พบข้อมูลกิจกรรม');
+                    hideLoading();
+                    return;
+                }
+                
+                document.getElementById('attendanceModalTitle').textContent = `เช็คชื่อกิจกรรม: ${currentActivity.name}`;
+                document.getElementById('attendanceModalDate').textContent = `วันที่: ${formatDate(currentActivity.date)}`;
+                
+                // Get all users
+                const usersSnapshot = await database.ref('users').once('value');
+                const allUsers = usersSnapshot.val() ? Object.values(usersSnapshot.val()) : [];
+                
+                // Get attendance records for this activity
+                const attendanceSnapshot = await database.ref('attendance').orderByChild('activityId').equalTo(activityId).once('value');
+                const activityAttendance = attendanceSnapshot.val() ? Object.values(attendanceSnapshot.val()) : [];
+                
+                const attendanceList = document.getElementById('attendanceList');
+                attendanceList.innerHTML = '';
+                
+                // Only show students (not admin)
+                const studentsToShow = allUsers.filter(user => user.role !== 'admin');
+                
+                // If current user is a leader, only show students from their class
+                let filteredStudents = studentsToShow;
+                if (currentUser && currentUser.role === 'leader') {
+                    filteredStudents = studentsToShow.filter(user => user.class === currentUser.class);
+                }
+                
+                
+                filteredStudents.forEach((user, index) => {
+                    let attendanceRecord = activityAttendance.find(a => a.studentId === user.id);
+                    
+                    if (!attendanceRecord) {
+                        // Create a new attendance record if it doesn't exist
+                        attendanceRecord = {
+                            id: `${activityId}_${user.id}`,
+                            activityId: activityId,
+                            studentId: user.id,
+                            status: "absent",
+                            timestamp: ""
+                        };
+                    }
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${index + 1}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${user.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${user.name}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ห้อง ${user.class}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(attendanceRecord.status)}">
+                                ${getStatusText(attendanceRecord.status)}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${attendanceRecord.timestamp || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button class="change-status px-3 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white" 
+                                    data-student-id="${user.id}" data-student-name="${user.name}">
+                                เปลี่ยนสถานะ
+                            </button>
+                        </td>
+                    `;
+                    attendanceList.appendChild(row);
+                });
+                
+                // Add event listeners to change status buttons
+                document.querySelectorAll('.change-status').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const studentId = this.getAttribute('data-student-id');
+                        const studentName = this.getAttribute('data-student-name');
+                        openStatusModal(studentId, studentName);
+                    });
+                });
+                
+                document.getElementById('attendanceModal').classList.remove('hidden');
+            } catch (error) {
+                console.error("Error opening attendance modal:", error);
+                alert('เกิดข้อผิดพลาดในการโหลดข้อมูลการเช็คชื่อ กรุณาลองใหม่อีกครั้ง');
+            }
+            hideLoading();
+        }
+
+        document.getElementById('closeAttendanceModal').addEventListener('click', function() {
+            document.getElementById('attendanceModal').classList.add('hidden');
+            currentActivity = null;
+        });
+
+        document.getElementById('saveAttendanceBtn').addEventListener('click', function() {
+            document.getElementById('attendanceModal').classList.add('hidden');
+            currentActivity = null;
+            alert('บันทึกการเช็คชื่อเรียบร้อยแล้ว');
+            
+            // Refresh member activities if the current user is a member
+            if (currentUser && currentUser.role === 'member') {
+                loadMemberActivities();
+            }
+        });
+
+        // Status modal functionality
+        function openStatusModal(studentId, studentName) {
+            currentStudentForStatus = studentId;
+            document.getElementById('statusModalStudentName').textContent = `นักศึกษา: ${studentName}`;
+            document.getElementById('statusModal').classList.remove('hidden');
+        }
+
+        document.getElementById('closeStatusModal').addEventListener('click', function() {
+            document.getElementById('statusModal').classList.add('hidden');
+            currentStudentForStatus = null;
+        });
+
+        document.querySelectorAll('.status-option').forEach(button => {
+            button.addEventListener('click', function() {
+                const status = this.getAttribute('data-status');
+                updateAttendanceStatus(currentStudentForStatus, status);
+                document.getElementById('statusModal').classList.add('hidden');
+                currentStudentForStatus = null;
+            });
+        });
+
+        async function updateAttendanceStatus(studentId, status) {
+            if (!currentActivity || !studentId) return;
+            
+            showLoading();
+            try {
+                const attendanceId = `${currentActivity.id}_${studentId}`;
+                
+                // Get the current attendance record
+                const attendanceSnapshot = await database.ref('attendance/' + attendanceId).once('value');
+                let attendanceRecord = attendanceSnapshot.val();
+                
+                if (!attendanceRecord) {
+                    // Create a new record if it doesn't exist
+                    attendanceRecord = {
+                        id: attendanceId,
+                        activityId: currentActivity.id,
+                        studentId: studentId,
+                        status: status,
+                        timestamp: status !== 'absent' ? getCurrentTime() : ''
+                    };
+                } else {
+                    // Update the existing record
+                    attendanceRecord.status = status;
+                    // Only update timestamp if status is not 'absent'
+                    if (status !== 'absent') {
+                        attendanceRecord.timestamp = getCurrentTime();
+                    } else {
+                        attendanceRecord.timestamp = '';
+                    }
+                }
+                
+                // Save to Firebase
+                await database.ref('attendance/' + attendanceId).set(attendanceRecord);
+                
+                // Refresh the attendance modal
+                openAttendanceModal(currentActivity.id);
+            } catch (error) {
+                console.error("Error updating attendance status:", error);
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะการเช็คชื่อ กรุณาลองใหม่อีกครั้ง');
+                hideLoading();
+            }
+        }
+        
+        // Initialize the app when the document loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeData();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'963301c0171a7992',t:'MTc1MzE4ODAyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
