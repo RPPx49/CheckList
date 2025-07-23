@@ -1144,8 +1144,15 @@
             attendanceListTable.innerHTML = '';
             let index = 1;
 
+            // เงื่อนไขนี้จะให้ admin เห็นทุกห้อง, leader เห็นเฉพาะห้องตัวเอง
+            let allowedClass = classFilter;
+            if (currentUser.role === 'leader') {
+                allowedClass = currentUser.class;
+            }
+
             const membersInCurrentClass = users.filter(user => 
-                (user.role === 'member' || user.role === 'leader') && (classFilter === 'all' || user.class === classFilter)
+                (user.role === 'member' || user.role === 'leader') && 
+                (allowedClass === 'all' || user.class === allowedClass)
             );
 
             for (const member of membersInCurrentClass) {
