@@ -44,6 +44,30 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        @media (max-width: 640px) {
+        .overflow-x-auto {
+            width: 100vw;
+            margin-left: -16px;
+            margin-right: -16px;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        table {
+            font-size: 13px;
+        }
+        th, td {
+            padding-left: 8px !important;
+            padding-right: 8px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+        }
+        .rounded-xl, .rounded-lg {
+            border-radius: 0.5rem !important;
+        }
+        .shadow-md, .shadow-xl {
+            box-shadow: none !important;
+        }
+        }
     </style>
 </head>
 <body>
