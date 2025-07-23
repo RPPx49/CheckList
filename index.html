@@ -167,6 +167,24 @@
                     </div>
                 </div>
 
+                <div class="bg-white rounded-xl shadow-md p-6 mt-6">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4">ประวัติการชำระเงินรายเดือน</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เดือน</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนเงิน</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับ (ถ้ามี)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="memberMonthlyFeeList" class="bg-white divide-y divide-gray-200">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div id="treasurerQRSection" class="my-6 flex flex-col items-center">
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">QR โอนเงินเหรัญญิกประจำห้อง</h3>
                     <img id="treasurerQRImg" src="" alt="QR เหรัญญิก" class="w-48 h-48 object-contain border rounded-lg shadow">
@@ -192,6 +210,11 @@
             </nav>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="mb-6">
+                    <button id="leaderMonthlyFeeBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        เข้าสู่ระบบ เก็บเงินรายเดือน
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-6">
                         <div class="bg-white rounded-xl shadow-md p-6">
@@ -224,7 +247,7 @@
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="lg:col-span-2 space-y-6">
                         <div class="bg-white rounded-xl shadow-md p-6">
                             <h2 class="text-xl font-semibold text-gray-800 mb-4">กิจกรรมทั้งหมด</h2>
@@ -282,7 +305,8 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ขาด</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลา</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คะแนนรวม</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับค้างชำระ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับกิจกรรม</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับรายเดือน</th>
                                         </tr>
                                     </thead>
                                     <tbody id="leaderSummaryList" class="bg-white divide-y divide-gray-200">
@@ -312,6 +336,11 @@
             </nav>
 
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="mb-6">
+                    <button id="adminMonthlyFeeBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        เข้าสู่ระบบ เก็บเงินรายเดือน
+                    </button>
+                </div>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-6">
                         <div class="bg-white rounded-xl shadow-md p-6">
@@ -415,7 +444,8 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ขาด</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ลา</th>
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">คะแนนรวม</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับค้างชำระ</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับกิจกรรม</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับรายเดือน</th>
                                         </tr>
                                     </thead>
                                     <tbody id="adminSummaryList" class="bg-white divide-y divide-gray-200">
@@ -424,6 +454,78 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="monthlyFeePage" class="hidden min-h-screen bg-gray-100 p-4 sm:p-6 lg:p-8">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h1 class="text-2xl font-bold text-gray-800">จัดการเก็บเงินรายเดือน</h1>
+                    <button id="backToDashboardBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm">กลับไปหน้าหลัก</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างการเก็บเงินประจำเดือน</h2>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="feeMonth">เลือกเดือน</label>
+                                    <input type="month" id="feeMonth" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-gray-700 mb-2" for="feeAmount">จำนวนเงิน (บาท)</label>
+                                    <input type="number" id="feeAmount" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="เช่น 100">
+                                </div>
+                                <button id="createMonthlyFeeBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition duration-300">สร้างรายการ</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-4">รายการเก็บเงินทั้งหมด</h2>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">เดือน</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จำนวนเงิน</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">การจัดการ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monthlyFeeList" class="bg-white divide-y divide-gray-200">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="monthlyFeeManagementModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl shadow-xl p-6 w-full max-w-4xl fade-in">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800" id="monthlyFeeModalTitle">จัดการการชำระเงิน</h2>
+                    <button id="closeMonthlyFeeModal" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto" style="max-height: 400px;">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">รหัสนักศึกษา</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ-นามสกุล</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สถานะ</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับ (ถ้ามี)</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyFeeMemberList" class="bg-white divide-y divide-gray-200">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -526,14 +628,14 @@
     <script>
         // Firebase Configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBl4obML6xYEvIl1XfHB0S1OCAx2LayZIQ",
-            authDomain: "checklist-ad9ee.firebaseapp.com",
-            databaseURL: "https://checklist-ad9ee-default-rtdb.firebaseio.com",
-            projectId: "checklist-ad9ee",
-            storageBucket: "checklist-ad9ee.firebasestorage.app",
-            messagingSenderId: "1073198516932",
-            appId: "1:1073198516932:web:dc075888b15fb0777d9791",
-            measurementId: "G-HS9EL7Z3B5"
+            apiKey: "AIzaSyBpON7gu4SVk84JHpiOMOy8UnYr0nFPaRo",
+            authDomain: "checmoney-60b2d.firebaseapp.com",
+            databaseURL: "https://checmoney-60b2d-default-rtdb.firebaseio.com",
+            projectId: "checmoney-60b2d",
+            storageBucket: "checmoney-60b2d.firebasestorage.app",
+            messagingSenderId: "994779044171",
+            appId: "1:994779044171:web:f9462c59ec102094c870ce",
+            measurementId: "G-J5EE7R8MKY"
             };
 
         // Initialize Firebase
@@ -543,10 +645,13 @@
         // Global variables
         let currentUser = null;
         let currentActivity = null;
+        let currentMonthlyFee = null;
         let currentStudentForStatus = null; // Stores the student object whose status is being changed
         let users = [];
         let activities = [];
         let attendance = [];
+        let monthlyFees = [];
+        let monthlyFeeRecords = [];
 
         // Show loading spinner
         function showLoading() {
@@ -564,79 +669,28 @@
             try {
                 // Load users
                 const usersSnapshot = await database.ref('users').once('value');
-                const usersData = usersSnapshot.val();
-                if (usersData) {
-                    users = Object.values(usersData);
-                } else {
-                    // If no users exist, create default admin user
-                    const defaultUsers = [
-                        { id: "RPPx", name: "ผู้ดูแลระบบ", password: "1234", role: "admin", class: "", points: 0, lateCount: 0, absentCount: 0, leaveCount: 0, totalFineAmount: 0 },
-                        { id: "67414401001", name: "สมชาย แสนดี", password: "123", role: "member", class: "1", points: 0, lateCount: 0, absentCount: 0, leaveCount: 0, totalFineAmount: 0 },
-                        { id: "67414401002", name: "สมหญิง รุ่งเรือง", password: "123", role: "member", class: "1", points: 0, lateCount: 0, absentCount: 0, leaveCount: 0, totalFineAmount: 0 },
-                        { id: "67414402001", name: "มานะ มากมี", password: "123", role: "leader", class: "2", points: 0, lateCount: 0, absentCount: 0, leaveCount: 0, totalFineAmount: 0 },
-                        { id: "67414402002", name: "มานี มีสุข", password: "123", role: "member", class: "2", points: 0, lateCount: 0, absentCount: 0, leaveCount: 0, totalFineAmount: 0 }
-                    ];
-                    
-                    // Save default users to Firebase
-                    const usersRef = database.ref('users');
-                    for (const user of defaultUsers) {
-                        await usersRef.child(user.id).set(user);
-                    }
-                    users = defaultUsers;
-                }
+                const usersData = usersSnapshot.val() || {};
+                users = Object.values(usersData);
 
                 // Load activities
                 const activitiesSnapshot = await database.ref('activities').once('value');
-                const activitiesData = activitiesSnapshot.val();
-                if (activitiesData) {
-                    activities = Object.values(activitiesData);
-                } else {
-                    // If no activities exist, create default activities
-                    const defaultActivities = [
-                        { id: 1, name: "ปฐมนิเทศนักศึกษาใหม่", date: "2023-06-15" },
-                        { id: 2, name: "อบรมการใช้ห้องสมุด", date: "2023-07-20" }
-                    ];
-                    
-                    // Save default activities to Firebase
-                    const activitiesRef = database.ref('activities');
-                    for (const activity of defaultActivities) {
-                        await activitiesRef.child(activity.id).set(activity);
-                    }
-                    activities = defaultActivities;
-                }
+                const activitiesData = activitiesSnapshot.val() || {};
+                activities = Object.values(activitiesData);
 
                 // Load attendance
                 const attendanceSnapshot = await database.ref('attendance').once('value');
-                const attendanceData = attendanceSnapshot.val();
-                if (attendanceData) {
-                    attendance = Object.values(attendanceData);
-                } else {
-                    // If no attendance records exist, create default attendance
-                    const defaultAttendance = [
-                        { id: "1_67414401001", activityId: 1, studentId: "67414401001", status: "present", timestamp: "09:15:30", initialFine: 0, isFinePaid: false, finePaidDate: "", pointsAwarded: 0, leaveReasonValid: false },
-                        { id: "1_67414401002", activityId: 1, studentId: "67414401002", status: "late", timestamp: "09:45:22", initialFine: 40, isFinePaid: false, finePaidDate: "", pointsAwarded: 0.5, leaveReasonValid: false },
-                        { id: "1_67414402001", activityId: 1, studentId: "67414402001", status: "absent", timestamp: "", initialFine: 100, isFinePaid: false, finePaidDate: "", pointsAwarded: 3, leaveReasonValid: false },
-                        { id: "1_67414402002", activityId: 1, studentId: "67414402002", status: "leave", timestamp: "08:30:45", initialFine: 0, isFinePaid: false, finePaidDate: "", pointsAwarded: 0, leaveReasonValid: true },
-                        
-                        { id: "2_67414401001", activityId: 2, studentId: "67414401001", status: "present", timestamp: "13:05:12", initialFine: 0, isFinePaid: false, finePaidDate: "", pointsAwarded: 0, leaveReasonValid: false },
-                        { id: "2_67414401002", activityId: 2, studentId: "67414401002", status: "absent", timestamp: "", initialFine: 100, isFinePaid: false, finePaidDate: "", pointsAwarded: 3, leaveReasonValid: false },
-                        { id: "2_67414402001", activityId: 2, studentId: "67414402001", status: "late", timestamp: "13:30:22", initialFine: 40, isFinePaid: false, finePaidDate: "", pointsAwarded: 0.5, leaveReasonValid: false }
-                    ]; 
-                    // Set fine due date for default attendance based on activity date
-                    defaultAttendance.forEach(record => {
-                        const activity = activities.find(act => act.id === record.activityId);
-                        if (activity && (record.status === 'late' || record.status === 'absent' || (record.status === 'leave' && !record.leaveReasonValid))) {
-                            record.fineDueDate = activity.date;
-                        }
-                    });
+                const attendanceData = attendanceSnapshot.val() || {};
+                attendance = Object.values(attendanceData);
 
-                    // Save default attendance to Firebase
-                    const attendanceRef = database.ref('attendance');
-                    for (const record of defaultAttendance) {
-                        await attendanceRef.child(record.id).set(record);
-                    }
-                    attendance = defaultAttendance;
-                }
+                // Load monthly fees
+                const monthlyFeesSnapshot = await database.ref('monthlyFees').once('value');
+                const monthlyFeesData = monthlyFeesSnapshot.val() || {};
+                monthlyFees = Object.values(monthlyFeesData);
+
+                // Load monthly fee records
+                const monthlyFeeRecordsSnapshot = await database.ref('monthlyFeeRecords').once('value');
+                const monthlyFeeRecordsData = monthlyFeeRecordsSnapshot.val() || {};
+                monthlyFeeRecords = Object.values(monthlyFeeRecordsData);
 
                 // Initialize welcome page
                 initWelcomePage();
@@ -660,6 +714,13 @@
             return new Date(dateString).toLocaleDateString('th-TH', options);
         }
 
+        function formatMonthYear(monthString) { // YYYY-MM
+            if (!monthString) return '';
+            const [year, month] = monthString.split('-');
+            const date = new Date(year, month - 1);
+            return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'long' });
+        }
+
         function getCurrentTime() {
             const now = new Date();
             return now.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -671,9 +732,19 @@
                 case 'late': return isFinePaid ? 'มาสาย (จ่ายแล้ว)' : 'มาสาย';
                 case 'leave': return `ลา (${leaveReasonValid ? 'มีเหตุจำเป็น' : 'ไม่มีเหตุจำเป็น'})`;
                 case 'absent': return isFinePaid ? 'ขาด (จ่ายแล้ว)' : 'ขาด';
-                case 'paidfine': return 'จ่ายค่าปรับแล้ว'; // This status is probably not needed if fine payment is tracked separately
+                case 'paidfine': return 'จ่ายค่าปรับแล้ว';
                 default: return 'ไม่มีข้อมูล';
             }
+        }
+        
+        function getMonthlyFeeStatusText(isPaid, fineAmount) {
+            if (isPaid) {
+                return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">จ่ายแล้ว</span>';
+            }
+            if (fineAmount > 0) {
+                return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">ค้างชำระ (มีค่าปรับ)</span>';
+            }
+            return '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">ยังไม่จ่าย</span>';
         }
 
         function getStatusColor(status) {
@@ -713,11 +784,10 @@
             const currentDate = new Date();
             let fine = initialFine;
 
-            // Calculate months passed since activity date
             const diffMonths = (currentDate.getFullYear() - activityDate.getFullYear()) * 12 + (currentDate.getMonth() - activityDate.getMonth());
 
-            if (diffMonths > 1) { // If more than 1 month has passed
-                const additionalMonths = diffMonths - 1; // First month is grace period for 40 baht
+            if (diffMonths > 1) { 
+                const additionalMonths = diffMonths - 1; 
                 fine += additionalMonths * 20;
             }
             return fine;
@@ -760,16 +830,16 @@
         async function loadMemberDashboardData() {
             showLoading();
             try {
-                // Recalculate user summary data
                 await calculateAndSaveUserSummary(currentUser.id);
 
-                // Reload current user data
                 const userSnapshot = await database.ref('users').child(currentUser.id).once('value');
                 currentUser = userSnapshot.val();
                 
-                document.getElementById('memberTotalPoints').textContent = currentUser.points;
-                document.getElementById('memberOutstandingFine').textContent = `${currentUser.totalFineAmount} บาท`;
+                document.getElementById('memberTotalPoints').textContent = currentUser.points || 0;
+                document.getElementById('memberOutstandingFine').textContent = `${currentUser.totalFineAmount || 0} บาท`;
                 loadMemberActivities();
+                loadMemberMonthlyFees();
+
             } catch (error) {
                 console.error("Error loading member dashboard data:", error);
                 alert("เกิดข้อผิดพลาดในการโหลดข้อมูลส่วนตัว");
@@ -778,7 +848,7 @@
             }
         }
 
-        async function loadMemberActivities() {
+        function loadMemberActivities() {
             const memberActivityList = document.getElementById('memberActivityList');
             memberActivityList.innerHTML = '';
             let index = 1;
@@ -805,7 +875,6 @@
                 }
             });
 
-            // แสดง QR เหรัญญิกแต่ละห้อง
             const qrImg = document.getElementById('treasurerQRImg');
             const qrNote = document.getElementById('treasurerQRNote');
             if (currentUser.class === "1") {
@@ -818,6 +887,45 @@
                 qrImg.src = "";
                 qrNote.textContent = "ไม่พบข้อมูลเหรัญญิกสำหรับห้องนี้";
             }
+        }
+
+        function loadMemberMonthlyFees() {
+            const memberMonthlyFeeList = document.getElementById('memberMonthlyFeeList');
+            memberMonthlyFeeList.innerHTML = '';
+            
+            monthlyFees.sort((a,b) => {
+                const [ay, am] = a.month.split('-').map(Number);
+                const [by, bm] = b.month.split('-').map(Number);
+                if (ay !== by) return ay - by;
+                return am - bm;
+            }).forEach(fee => {
+                const record = monthlyFeeRecords.find(r => r.feeId === fee.id && r.studentId === currentUser.id);
+                const isPaid = record ? record.isPaid : false;
+                const dueDate = new Date(fee.month + "-01");
+                dueDate.setMonth(dueDate.getMonth() + 1, 0); // Last day of the month
+                const today = new Date();
+                const isOverdue = today > dueDate;
+                let fineAmount = 0;
+                let fineNote = '';
+                if (!isPaid && isOverdue) {
+                    fineAmount = 30;
+                } else if (!isPaid && today <= dueDate) {
+                    // คำนวณวันที่เหลือก่อนโดนค่าปรับ
+                    const diffTime = dueDate.getTime() - today.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 7) {
+                        fineNote = `<span class="text-orange-500 text-xs ml-2">อีก ${diffDays} วันจะเสียค่าปรับ 30 บาท</span>`;
+                    }
+                }
+                
+                const row = memberMonthlyFeeList.insertRow();
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${formatMonthYear(fee.month)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${fee.amount} บาท</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${getMonthlyFeeStatusText(isPaid, fineAmount)}${fineNote}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${fineAmount > 0 ? `${fineAmount} บาท` : 'ไม่มี'}</td>
+                `;
+            });
         }
 
 
@@ -857,7 +965,7 @@
                     loadLeaderData();
                 } else {
                     alert('คุณไม่มีสิทธิ์เข้าถึงหน้านี้ในฐานะผู้ดูแลหรือหัวหน้าห้อง');
-                    document.getElementById('welcomePage').classList.remove('hidden'); // Go back to welcome for regular members
+                    document.getElementById('welcomePage').classList.remove('hidden');
                 }
             } else {
                 alert('รหัสนักศึกษา/รหัสผู้ดูแล หรือรหัสผ่านไม่ถูกต้อง');
@@ -870,21 +978,21 @@
             currentUser = null;
             document.getElementById('memberDashboard').classList.add('hidden');
             document.getElementById('welcomePage').classList.remove('hidden');
-            initWelcomePage(); // Refresh select options
+            initWelcomePage(); 
         });
 
         document.getElementById('leaderLogout').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('leaderDashboard').classList.add('hidden');
             document.getElementById('welcomePage').classList.remove('hidden');
-            initWelcomePage(); // Refresh select options
+            initWelcomePage(); 
         });
 
         document.getElementById('adminLogout').addEventListener('click', function() {
             currentUser = null;
             document.getElementById('adminDashboard').classList.add('hidden');
             document.getElementById('welcomePage').classList.remove('hidden');
-            initWelcomePage(); // Refresh select options
+            initWelcomePage(); 
         });
 
         // Add New Member (Leader/Admin)
@@ -919,7 +1027,8 @@
                     lateCount: 0,
                     absentCount: 0,
                     leaveCount: 0,
-                    totalFineAmount: 0
+                    totalFineAmount: 0,
+                    totalMonthlyFine: 0
                 };
                 await database.ref('users').child(studentId).set(newUser);
                 users.push(newUser);
@@ -928,7 +1037,6 @@
                 document.getElementById(fullNameElementId).value = '';
                 if (roleElementId) document.getElementById(roleElementId).value = 'member';
 
-                // Refresh the appropriate dashboard
                 if (currentUser.role === 'admin') loadAdminData();
                 else if (currentUser.role === 'leader') loadLeaderData();
 
@@ -965,37 +1073,6 @@
                 document.getElementById(activityNameElementId).value = '';
                 document.getElementById(activityDateElementId).value = '';
 
-                // Initialize attendance for all members for this new activity
-                const attendanceRef = database.ref('attendance');
-                for (const user of users.filter(u => u.role === 'member' || u.role === 'leader')) {
-                    const recordId = `${newActivityId}_${user.id}`;
-                    const newAttendanceRecord = {
-                        id: recordId,
-                        activityId: newActivityId,
-                        studentId: user.id,
-                        status: 'absent', // Default to absent
-                        timestamp: '',
-                        initialFine: 100, // Default absent fine
-                        isFinePaid: false,
-                        finePaidDate: "",
-                        pointsAwarded: 3, // Default absent points
-                        leaveReasonValid: false,
-                        fineDueDate: date // Set activity date as fine due date
-                    };
-                    await attendanceRef.child(recordId).set(newAttendanceRecord);
-                    attendance.push(newAttendanceRecord);
-                    // Update user's absent count and total fine for initial absent status
-                    await database.ref('users').child(user.id).transaction(currentData => {
-                        if (currentData) {
-                            currentData.absentCount = (currentData.absentCount || 0) + 1;
-                            currentData.totalFineAmount = (currentData.totalFineAmount || 0) + 100;
-                            currentData.points = (currentData.points || 0) + 3;
-                        }
-                        return currentData;
-                    });
-                }
-                
-                // Refresh the appropriate dashboard
                 if (currentUser.role === 'admin') loadAdminData();
                 else if (currentUser.role === 'leader') loadLeaderData();
 
@@ -1015,8 +1092,8 @@
         async function loadLeaderData() {
             showLoading();
             await loadActivities('activityList');
-            await loadMembers('memberList', currentUser.class); // Filter members by leader's class
-            await loadSummaryReport('leaderSummaryList');
+            await loadMembers('memberList', currentUser.class); 
+            await loadSummaryReport('leaderSummaryList', currentUser.class);
             hideLoading();
         }
 
@@ -1024,7 +1101,7 @@
         async function loadAdminData() {
             showLoading();
             await loadActivities('adminActivityList');
-            await loadMembers('adminMemberList'); // Admin views all members
+            await loadMembers('adminMemberList'); 
             await loadSummaryReport('adminSummaryList');
             hideLoading();
         }
@@ -1054,6 +1131,7 @@
             let index = 1;
 
             const filteredUsers = users.filter(user => 
+                user.role !== 'admin' &&
                 (classFilter === 'all' || user.class === classFilter) &&
                 (roleFilter === 'all' || user.role === roleFilter)
             );
@@ -1092,12 +1170,19 @@
             try {
                 await database.ref('users').child(userId).remove();
                 users = users.filter(u => u.id !== userId);
-                // Also remove their attendance records
+                
                 const attendanceRecordsToDelete = attendance.filter(rec => rec.studentId === userId);
                 for (const record of attendanceRecordsToDelete) {
                     await database.ref('attendance').child(record.id).remove();
                 }
                 attendance = attendance.filter(rec => rec.studentId !== userId);
+
+                const monthlyFeeRecordsToDelete = monthlyFeeRecords.filter(rec => rec.studentId === userId);
+                for (const record of monthlyFeeRecordsToDelete) {
+                    await database.ref('monthlyFeeRecords').child(record.id).remove();
+                }
+                monthlyFeeRecords = monthlyFeeRecords.filter(rec => rec.studentId !== userId);
+
 
                 alert('ลบผู้ใช้เรียบร้อยแล้ว');
                 if (currentUser.role === 'admin') loadAdminData();
@@ -1131,8 +1216,8 @@
 
         document.getElementById('closeAttendanceModal').addEventListener('click', function() {
             document.getElementById('attendanceModal').classList.add('hidden');
-            if (currentUser.role === 'admin') loadAdminData(); // Refresh admin dashboard
-            else if (currentUser.role === 'leader') loadLeaderData(); // Refresh leader dashboard
+            if (currentUser.role === 'admin') loadAdminData();
+            else if (currentUser.role === 'leader') loadLeaderData();
         });
 
         document.getElementById('attendanceClassAll').addEventListener('click', () => populateAttendanceList('all'));
@@ -1144,38 +1229,39 @@
             attendanceListTable.innerHTML = '';
             let index = 1;
 
-            // เงื่อนไขนี้จะให้ admin เห็นทุกห้อง, leader เห็นเฉพาะห้องตัวเอง
             let allowedClass = classFilter;
             if (currentUser.role === 'leader') {
                 allowedClass = currentUser.class;
+                // Hide class filter buttons for leader
+                document.getElementById('attendanceClassFilterBar').classList.add('hidden');
+            } else {
+                 document.getElementById('attendanceClassFilterBar').classList.remove('hidden');
             }
 
-            const membersInCurrentClass = users.filter(user => 
+            const membersToDisplay = users.filter(user => 
                 (user.role === 'member' || user.role === 'leader') && 
                 (allowedClass === 'all' || user.class === allowedClass)
             );
 
-            for (const member of membersInCurrentClass) {
+            for (const member of membersToDisplay) {
                 const recordId = `${currentActivity.id}_${member.id}`;
                 let record = attendance.find(rec => rec.id === recordId);
 
-                // If no record exists for this activity and student, create a default 'absent' record
                 if (!record) {
-                    record = {
+                     record = {
                         id: recordId,
                         activityId: currentActivity.id,
                         studentId: member.id,
-                        status: 'absent',
+                        status: 'absent', // Default to absent
                         timestamp: '',
-                        initialFine: 100,
+                        initialFine: 100, // Default absent fine
                         isFinePaid: false,
                         finePaidDate: "",
-                        pointsAwarded: 3,
+                        pointsAwarded: 3, // Default absent points
                         leaveReasonValid: false,
-                        fineDueDate: currentActivity.date
+                        fineDueDate: currentActivity.date // Set activity date as fine due date
                     };
-                    await database.ref('attendance').child(recordId).set(record);
-                    attendance.push(record);
+                    // No need to save here, let the status change handle it.
                 }
 
                 const currentCalculatedFine = calculateCurrentFine(record.initialFine, currentActivity.date, record.isFinePaid);
@@ -1212,99 +1298,76 @@
             document.getElementById('statusModalStudentName').textContent = `นักศึกษา: ${currentStudentForStatus.name} (${currentStudentForStatus.id})`;
             document.getElementById('statusModal').dataset.recordId = recordId;
 
-            // Hide/show leave reason section based on role
             const leaveReasonSection = document.getElementById('leaveReasonSection');
-            if (currentUser.role === 'admin' || currentUser.role === 'leader') {
-                leaveReasonSection.classList.remove('hidden');
-            } else {
-                leaveReasonSection.classList.add('hidden');
-            }
-
-            // Set initial state of the checkbox
+            leaveReasonSection.classList.add('hidden');
+            
             const record = attendance.find(rec => rec.id === recordId);
-            if (record && record.status === 'leave') {
-                document.getElementById('leaveReasonValidCheckbox').checked = record.leaveReasonValid;
-            } else {
-                document.getElementById('leaveReasonValidCheckbox').checked = false;
-            }
-
+            document.getElementById('leaveReasonValidCheckbox').checked = record ? record.leaveReasonValid : false;
+            
             document.getElementById('statusModal').classList.remove('hidden');
         }
 
         document.getElementById('closeStatusModal').addEventListener('click', function() {
             document.getElementById('statusModal').classList.add('hidden');
-            document.getElementById('leaveReasonSection').classList.add('hidden'); // Hide it when modal closes
+            document.getElementById('leaveReasonSection').classList.add('hidden'); 
         });
 
         document.querySelectorAll('.status-option').forEach(button => {
             button.addEventListener('click', async function() {
+                const newStatus = this.dataset.status;
+                if(newStatus === 'leave'){
+                     document.getElementById('leaveReasonSection').classList.remove('hidden');
+                     return; // Wait for user to confirm reason
+                }
+
                 showLoading();
                 const recordId = document.getElementById('statusModal').dataset.recordId;
-                const newStatus = this.dataset.status;
                 const isLeaveReasonValid = document.getElementById('leaveReasonValidCheckbox').checked;
 
                 await updateAttendanceStatus(recordId, newStatus, isLeaveReasonValid);
                 document.getElementById('statusModal').classList.add('hidden');
-                document.getElementById('leaveReasonSection').classList.add('hidden'); // Hide it after selection
-                openAttendanceModal(currentActivity.id); // Refresh the attendance modal
+                document.getElementById('leaveReasonSection').classList.add('hidden');
+                await populateAttendanceList();
                 hideLoading();
             });
         });
 
-        // Toggle leave reason section visibility
-        document.querySelector('.status-option[data-status="leave"]').addEventListener('click', function() {
-            const leaveReasonSection = document.getElementById('leaveReasonSection');
-            if (currentUser.role === 'admin' || currentUser.role === 'leader') {
-                leaveReasonSection.classList.remove('hidden');
-            }
+        document.getElementById('leaveReasonValidCheckbox').addEventListener('change', async () => {
+             showLoading();
+             const recordId = document.getElementById('statusModal').dataset.recordId;
+             const isLeaveReasonValid = document.getElementById('leaveReasonValidCheckbox').checked;
+             await updateAttendanceStatus(recordId, 'leave', isLeaveReasonValid);
+             document.getElementById('statusModal').classList.add('hidden');
+             document.getElementById('leaveReasonSection').classList.add('hidden');
+             await populateAttendanceList();
+             hideLoading();
         });
-
-        document.querySelector('.status-option[data-status="present"]').addEventListener('click', () => document.getElementById('leaveReasonSection').classList.add('hidden'));
-        document.querySelector('.status-option[data-status="late"]').addEventListener('click', () => document.getElementById('leaveReasonSection').classList.add('hidden'));
-        document.querySelector('.status-option[data-status="absent"]').addEventListener('click', () => document.getElementById('leaveReasonSection').classList.add('hidden'));
-        document.querySelector('.status-option[data-status="paidfine"]').addEventListener('click', () => document.getElementById('leaveReasonSection').classList.add('hidden'));
 
 
         async function updateAttendanceStatus(recordId, newStatus, isLeaveReasonValid = false) {
             try {
                 const recordRef = database.ref('attendance').child(recordId);
-                const recordSnapshot = await recordRef.once('value');
-                const oldRecord = recordSnapshot.val();
-                
-                if (!oldRecord) {
-                    console.error("Attendance record not found:", recordId);
-                    alert("ไม่พบข้อมูลการเช็คชื่อ");
-                    return;
+                let oldRecord = attendance.find(rec => rec.id === recordId);
+
+                // If record doesn't exist locally, create a default one
+                if(!oldRecord) {
+                    const [activityId, studentId] = recordId.split('_');
+                    oldRecord = {
+                        id: recordId,
+                        activityId: parseInt(activityId),
+                        studentId: studentId,
+                        status: 'absent',
+                        initialFine: 100,
+                        pointsAwarded: 3,
+                        isFinePaid: false,
+                        timestamp: '',
+                        leaveReasonValid: false
+                    };
                 }
 
                 let newInitialFine = 0;
                 let newPointsAwarded = 0;
-                let newFinePaidStatus = oldRecord.isFinePaid; // Retain paid status by default
-                let newFinePaidDate = oldRecord.finePaidDate;
-                let newLeaveReasonValid = false;
 
-                // Adjust user's previous counts and points/fine before applying new status
-                await database.ref('users').child(oldRecord.studentId).transaction(currentData => {
-                    if (currentData) {
-                        // Revert old status impact
-                        if (oldRecord.status === 'late') {
-                            currentData.lateCount = Math.max(0, (currentData.lateCount || 0) - 1);
-                        } else if (oldRecord.status === 'absent') {
-                            currentData.absentCount = Math.max(0, (currentData.absentCount || 0) - 1);
-                        } else if (oldRecord.status === 'leave') {
-                            currentData.leaveCount = Math.max(0, (currentData.leaveCount || 0) - 1);
-                        }
-                        // Revert old points and fine from user totals, ensuring paid fines aren't double counted
-                        currentData.points = (currentData.points || 0) - (oldRecord.pointsAwarded || 0);
-                        if (!oldRecord.isFinePaid) { // Only revert if old fine was not paid
-                            const oldCalculatedFine = calculateCurrentFine(oldRecord.initialFine, currentActivity.date, oldRecord.isFinePaid);
-                            currentData.totalFineAmount = Math.max(0, (currentData.totalFineAmount || 0) - oldCalculatedFine);
-                        }
-                    }
-                    return currentData;
-                });
-
-                // Determine new values based on newStatus
                 switch (newStatus) {
                     case 'present':
                         newInitialFine = 0;
@@ -1313,208 +1376,143 @@
                     case 'late':
                         newInitialFine = 40;
                         newPointsAwarded = 0.5;
-                        newFinePaidStatus = false; // Reset fine status if changing to late
-                        newFinePaidDate = "";
                         break;
                     case 'absent':
                         newInitialFine = 100;
                         newPointsAwarded = 3;
-                        newFinePaidStatus = false; // Reset fine status if changing to absent
-                        newFinePaidDate = "";
                         break;
                     case 'leave':
-                        newInitialFine = 0;
-                        newPointsAwarded = 0;
-                        newFinePaidStatus = false; // Reset fine status for leave
-                        newFinePaidDate = "";
-                        newLeaveReasonValid = isLeaveReasonValid; // Set valid reason
+                        const user = users.find(u => u.id === oldRecord.studentId);
+                        const leaveCount = attendance.filter(r => r.studentId === user.id && r.status === 'leave').length;
+                        if(leaveCount >= 5 && !isLeaveReasonValid){
+                             newInitialFine = 100;
+                             newPointsAwarded = 2;
+                        } else if (leaveCount >= 5 && isLeaveReasonValid) {
+                             newInitialFine = 0;
+                             newPointsAwarded = 2;
+                        } else {
+                            newInitialFine = 0;
+                            newPointsAwarded = 0;
+                        }
                         break;
                     case 'paidfine':
-                        // This status is meant for marking existing fines as paid, not for setting a status
-                        // Handled by markFineAsPaid function
                         alert("โปรดใช้ปุ่ม 'จ่ายค่าปรับ' เพื่อบันทึกการจ่ายค่าปรับ");
-                        hideLoading();
                         return;
-                    default:
-                        break;
-                }
-
-                const userToUpdate = users.find(u => u.id === oldRecord.studentId);
-                let currentLeaveCount = userToUpdate ? (userToUpdate.leaveCount || 0) : 0;
-
-                // Apply additional logic for 'leave' if count > 5
-                if (newStatus === 'leave') {
-                     // Check current leave count if it was not already leave
-                    if (oldRecord.status !== 'leave') {
-                        currentLeaveCount++; // Increment if it's a new 'leave' record
-                    }
-                    if (currentLeaveCount > 5) {
-                        if (!newLeaveReasonValid) {
-                            newInitialFine = 100; // Fine for no valid reason
-                            newPointsAwarded = 2; // Points for no valid reason
-                        } else {
-                            newPointsAwarded = 2; // Points even with valid reason
-                        }
-                    } else {
-                        // If leave count <= 5, no fine and 0 points for leave
-                        newInitialFine = 0;
-                        newPointsAwarded = 0;
-                    }
                 }
                 
-                // Update the attendance record
                 const updatedRecord = {
                     ...oldRecord,
                     status: newStatus,
                     timestamp: (newStatus === 'present' || newStatus === 'late' || newStatus === 'leave') ? getCurrentTime() : '',
                     initialFine: newInitialFine,
-                    isFinePaid: newFinePaidStatus,
-                    finePaidDate: newFinePaidDate,
+                    isFinePaid: false, // Reset on status change
+                    finePaidDate: "",
                     pointsAwarded: newPointsAwarded,
-                    leaveReasonValid: newLeaveReasonValid
+                    leaveReasonValid: (newStatus === 'leave') ? isLeaveReasonValid : false
                 };
                 await recordRef.set(updatedRecord);
 
-                // Update local attendance array
                 const index = attendance.findIndex(rec => rec.id === recordId);
                 if (index !== -1) {
                     attendance[index] = updatedRecord;
+                } else {
+                    attendance.push(updatedRecord);
                 }
-
-                // Update user's aggregated data
-                await database.ref('users').child(oldRecord.studentId).transaction(currentData => {
-                    if (currentData) {
-                        // Apply new status impact
-                        if (newStatus === 'late') {
-                            currentData.lateCount = (currentData.lateCount || 0) + 1;
-                        } else if (newStatus === 'absent') {
-                            currentData.absentCount = (currentData.absentCount || 0) + 1;
-                        } else if (newStatus === 'leave') {
-                            currentData.leaveCount = (currentData.leaveCount || 0) + 1;
-                        }
-
-                        currentData.points = (currentData.points || 0) + newPointsAwarded;
-                        if (newInitialFine > 0 && !newFinePaidStatus) {
-                            currentData.totalFineAmount = (currentData.totalFineAmount || 0) + newInitialFine;
-                        }
-                    }
-                    return currentData;
-                });
                 
                 alert('อัปเดตสถานะเรียบร้อยแล้ว');
             } catch (error) {
                 console.error("Error updating attendance status:", error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะการเช็คชื่อ กรุณาลองใหม่อีกครั้ง');
+                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะการเช็คชื่อ');
             }
         }
 
         async function markFineAsPaid(recordId) {
-            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการทำเครื่องหมายว่าชำระค่าปรับแล้ว?')) {
-                return;
-            }
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการทำเครื่องหมายว่าชำระค่าปรับแล้ว?')) return;
             showLoading();
             try {
                 const recordRef = database.ref('attendance').child(recordId);
-                const recordSnapshot = await recordRef.once('value');
-                const record = recordSnapshot.val();
-
-                if (!record || record.isFinePaid) {
-                    alert('ค่าปรับนี้ได้รับการชำระแล้วหรือไม่ถูกต้อง');
-                    hideLoading();
-                    return;
-                }
-
-                const currentCalculatedFine = calculateCurrentFine(record.initialFine, currentActivity.date, record.isFinePaid);
-
                 await recordRef.update({
                     isFinePaid: true,
-                    finePaidDate: new Date().toISOString().split('T')[0] // Save current date
+                    finePaidDate: new Date().toISOString().split('T')[0] 
                 });
 
-                // Update local attendance array
                 const index = attendance.findIndex(rec => rec.id === recordId);
                 if (index !== -1) {
                     attendance[index].isFinePaid = true;
                     attendance[index].finePaidDate = new Date().toISOString().split('T')[0];
                 }
 
-                // Deduct the current calculated fine from the user's totalFineAmount
-                await database.ref('users').child(record.studentId).transaction(currentData => {
-                    if (currentData) {
-                        currentData.totalFineAmount = Math.max(0, (currentData.totalFineAmount || 0) - currentCalculatedFine);
-                    }
-                    return currentData;
-                });
-
                 alert('บันทึกการชำระค่าปรับเรียบร้อยแล้ว!');
-                openAttendanceModal(currentActivity.id); // Refresh the attendance modal
+                await populateAttendanceList();
             } catch (error) {
-                console.error("Error updating attendance status:", error);
-                alert('เกิดข้อผิดพลาดในการอัปเดตสถานะการเช็คชื่อ กรุณาลองใหม่อีกครั้ง');
+                console.error("Error marking fine as paid:", error);
+                alert('เกิดข้อผิดพลาดในการบันทึกการชำระค่าปรับ');
+            } finally {
                 hideLoading();
             }
         }
         
-        // Function to calculate and save user summary data (counts, points, fine)
         async function calculateAndSaveUserSummary(studentId) {
-            // กรอง attendance เฉพาะที่ activity ยังมีอยู่
-            const validActivityIds = activities.map(act => act.id);
+            const validActivityIds = new Set(activities.map(act => act.id));
             const userAttendanceRecords = attendance.filter(
-                rec => rec.studentId === studentId && validActivityIds.includes(rec.activityId)
+                rec => rec.studentId === studentId && validActivityIds.has(rec.activityId)
             );
+            
             let totalLate = 0;
             let totalAbsent = 0;
             let totalLeave = 0;
             let totalPoints = 0;
             let totalOutstandingFine = 0;
+            let totalMonthlyFine = 0;
 
-            for (const record of userAttendanceRecords) {
+            userAttendanceRecords.forEach(record => {
                 const activity = activities.find(act => act.id === record.activityId);
-                if (!activity) continue; // ข้ามถ้า activity ถูกลบ
+                if (!activity) return;
 
-                if (record.status === 'late') {
-                    totalLate++;
-                } else if (record.status === 'absent') {
-                    totalAbsent++;
-                } else if (record.status === 'leave') {
-                    totalLeave++;
-                }
+                if (record.status === 'late') totalLate++;
+                else if (record.status === 'absent') totalAbsent++;
+                else if (record.status === 'leave') totalLeave++;
 
                 totalPoints += (record.pointsAwarded || 0);
 
-                if (record.initialFine > 0 && !record.isFinePaid && activity) {
+                if (record.initialFine > 0 && !record.isFinePaid) {
                     totalOutstandingFine += calculateCurrentFine(record.initialFine, activity.date, record.isFinePaid);
                 }
-            }
+            });
 
-            // Update user's summary in Firebase
+            const userMonthlyFeeRecords = monthlyFeeRecords.filter(rec => rec.studentId === studentId && !rec.isPaid);
+            userMonthlyFeeRecords.forEach(record => {
+                const fee = monthlyFees.find(f => f.id === record.feeId);
+                if(fee){
+                    const dueDate = new Date(fee.month + "-01");
+                    dueDate.setMonth(dueDate.getMonth() + 1, 0); 
+                    if (new Date() > dueDate) {
+                        totalMonthlyFine += 30; // Add late fee
+                    }
+                }
+            });
+
             await database.ref('users').child(studentId).update({
                 lateCount: totalLate,
                 absentCount: totalAbsent,
                 leaveCount: totalLeave,
                 points: totalPoints,
-                totalFineAmount: totalOutstandingFine
+                totalFineAmount: totalOutstandingFine,
+                totalMonthlyFine: totalMonthlyFine
             });
 
-            // Update global users array
             const userIndex = users.findIndex(u => u.id === studentId);
             if (userIndex !== -1) {
-                users[userIndex].lateCount = totalLate;
-                users[userIndex].absentCount = totalAbsent;
-                users[userIndex].leaveCount = totalLeave;
-                users[userIndex].points = totalPoints;
-                users[userIndex].totalFineAmount = totalOutstandingFine;
+                users[userIndex] = { ...users[userIndex], lateCount: totalLate, absentCount: totalAbsent, leaveCount: totalLeave, points: totalPoints, totalFineAmount: totalOutstandingFine, totalMonthlyFine: totalMonthlyFine };
             }
         }
         async function deleteActivity(activityId) {
             if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรมนี้?')) return;
             showLoading();
             try {
-                // ลบกิจกรรม
                 await database.ref('activities').child(activityId).remove();
                 activities = activities.filter(act => act.id !== activityId);
 
-                // ลบ attendance ที่เกี่ยวข้อง
                 const attendanceToDelete = attendance.filter(rec => rec.activityId === activityId);
                 for (const rec of attendanceToDelete) {
                     await database.ref('attendance').child(rec.id).remove();
@@ -1530,15 +1528,17 @@
                 hideLoading();
             }
         }
-        // Generate and display summary report for Leader/Admin
-        async function loadSummaryReport(tableId) {
+        
+        async function loadSummaryReport(tableId, classFilter = 'all') {
             const summaryTable = document.getElementById(tableId);
             summaryTable.innerHTML = '';
-
-            // Ensure all users have updated summary data
+            
             await Promise.all(users.map(user => calculateAndSaveUserSummary(user.id)));
-
-            const filteredUsers = users.filter(user => user.role === 'member' || user.role === 'leader');
+            
+            const filteredUsers = users.filter(user => 
+                user.role !== 'admin' &&
+                (classFilter === 'all' || user.class === classFilter)
+            );
 
             filteredUsers.forEach(user => {
                 const row = summaryTable.insertRow();
@@ -1550,8 +1550,230 @@
                     <td class="px-6 py-4 whitespace-nowrap">${user.leaveCount || 0}</td>
                     <td class="px-6 py-4 whitespace-nowrap">${user.points || 0}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-red-600">${user.totalFineAmount || 0} บาท</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-red-600">${user.totalMonthlyFine || 0} บาท</td>
                 `;
             });
+        }
+
+        // ---- Monthly Fee Functions ----
+        function showMonthlyFeePage() {
+            document.getElementById('adminDashboard').classList.add('hidden');
+            document.getElementById('leaderDashboard').classList.add('hidden');
+            document.getElementById('monthlyFeePage').classList.remove('hidden');
+            loadMonthlyFeeList();
+        }
+
+        function hideMonthlyFeePage() {
+            document.getElementById('monthlyFeePage').classList.add('hidden');
+            if (currentUser.role === 'admin') {
+                document.getElementById('adminDashboard').classList.remove('hidden');
+                loadAdminData();
+            } else if (currentUser.role === 'leader') {
+                document.getElementById('leaderDashboard').classList.remove('hidden');
+                loadLeaderData();
+            }
+        }
+        
+        document.getElementById('adminMonthlyFeeBtn').addEventListener('click', showMonthlyFeePage);
+        document.getElementById('leaderMonthlyFeeBtn').addEventListener('click', showMonthlyFeePage);
+        document.getElementById('backToDashboardBtn').addEventListener('click', hideMonthlyFeePage);
+
+        async function createMonthlyFee() {
+            const monthInput = document.getElementById('feeMonth').value;
+            const amountInput = document.getElementById('feeAmount').value;
+
+            if(!monthInput || !amountInput) {
+                alert("กรุณากรอกเดือนและจำนวนเงิน");
+                return;
+            }
+
+            const feeId = `fee_${monthInput.replace('-', '')}`;
+            if(monthlyFees.some(f => f.id === feeId)){
+                alert("มีการสร้างรายการสำหรับเดือนนี้แล้ว");
+                return;
+            }
+
+            const newFee = {
+                id: feeId,
+                month: monthInput, // YYYY-MM
+                amount: parseInt(amountInput),
+                class: currentUser.role === 'leader' ? currentUser.class : 'all'
+            };
+
+            showLoading();
+            try {
+                await database.ref('monthlyFees').child(feeId).set(newFee);
+                monthlyFees.push(newFee);
+                alert("สร้างรายการเก็บเงินเรียบร้อยแล้ว");
+                document.getElementById('feeMonth').value = '';
+                document.getElementById('feeAmount').value = '';
+                loadMonthlyFeeList();
+            } catch (error) {
+                console.error("Error creating monthly fee: ", error);
+                alert("เกิดข้อผิดพลาดในการสร้างรายการ");
+            } finally {
+                hideLoading();
+            }
+        }
+        document.getElementById('createMonthlyFeeBtn').addEventListener('click', createMonthlyFee);
+
+        function loadMonthlyFeeList() {
+            const listBody = document.getElementById('monthlyFeeList');
+            listBody.innerHTML = '';
+            monthlyFees
+                .filter(fee => {
+                    if (currentUser.role === 'admin') return true;
+                    // leader เห็นเฉพาะของห้องตัวเอง หรือที่ class เป็น all
+                    return fee.class === currentUser.class || fee.class === 'all';
+                })
+                .sort((a, b) => {
+                    // เรียงจากปีน้อยไปมาก, เดือนน้อยไปมาก (เช่น 2024-01, 2024-02, ... 2025-01)
+                    const [ay, am] = a.month.split('-').map(Number);
+                    const [by, bm] = b.month.split('-').map(Number);
+                    if (ay !== by) return ay - by;
+                    return am - bm;
+                })
+                .forEach(fee => {
+                    const row = listBody.insertRow();
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap">${formatMonthYear(fee.month)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">${fee.amount} บาท</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm mr-2" onclick="openMonthlyFeeManagementModal('${fee.id}')">จัดการ</button>
+                            <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm" onclick="deleteMonthlyFee('${fee.id}')">ลบ</button>
+                        </td>
+                    `;
+            });
+        }
+        
+        async function deleteMonthlyFee(feeId) {
+            if(!confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้? ข้อมูลการชำระเงินทั้งหมดที่เกี่ยวข้องจะถูกลบด้วย")) return;
+            showLoading();
+            try {
+                await database.ref('monthlyFees').child(feeId).remove();
+                monthlyFees = monthlyFees.filter(f => f.id !== feeId);
+
+                const recordsToDelete = monthlyFeeRecords.filter(r => r.feeId === feeId);
+                for(const record of recordsToDelete){
+                     await database.ref('monthlyFeeRecords').child(record.id).remove();
+                }
+                monthlyFeeRecords = monthlyFeeRecords.filter(r => r.feeId !== feeId);
+
+                alert("ลบรายการเรียบร้อย");
+                loadMonthlyFeeList();
+
+            } catch(error) {
+                console.error("Error deleting monthly fee: ", error);
+                alert("เกิดข้อผิดพลาดในการลบ");
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function openMonthlyFeeManagementModal(feeId) {
+            currentMonthlyFee = monthlyFees.find(f => f.id === feeId);
+            if (!currentMonthlyFee) return;
+
+            document.getElementById('monthlyFeeModalTitle').textContent = `จัดการการชำระเงิน - ${formatMonthYear(currentMonthlyFee.month)}`;
+            const listBody = document.getElementById('monthlyFeeMemberList');
+            listBody.innerHTML = '';
+
+            const membersToDisplay = users.filter(user => user.role !== 'admin' && (currentUser.role === 'admin' || user.class === currentUser.class));
+            
+            const dueDate = new Date(currentMonthlyFee.month + "-01");
+            dueDate.setMonth(dueDate.getMonth() + 1, 0); 
+            const isOverdue = new Date() > dueDate;
+
+            membersToDisplay.forEach(member => {
+                const recordId = `${currentMonthlyFee.id}_${member.id}`;
+                let record = monthlyFeeRecords.find(r => r.id === recordId);
+                const isPaid = record ? record.isPaid : false;
+                
+                let fineAmount = 0;
+                if(!isPaid && isOverdue) {
+                    fineAmount = 30;
+                }
+
+                const row = listBody.insertRow();
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">${member.id}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${member.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${isPaid ? '<span class="text-green-600 font-semibold">จ่ายแล้ว</span>' : '<span class="text-red-600 font-semibold">ยังไม่จ่าย</span>'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${fineAmount > 0 ? `${fineAmount} บาท` : 'ไม่มี'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${!isPaid
+                            ? `<button class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm" onclick="markMonthlyFeeAsPaid('${recordId}', '${member.id}')">จ่ายแล้ว</button>`
+                            : `<button class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded-lg text-sm" onclick="unmarkMonthlyFeeAsPaid('${recordId}', '${member.id}')">แก้ไขเป็นยังไม่จ่าย</button>`
+                        }
+                    </td>
+                `;
+            });
+
+            document.getElementById('monthlyFeeManagementModal').classList.remove('hidden');
+        }
+
+        document.getElementById('closeMonthlyFeeModal').addEventListener('click', () => {
+             document.getElementById('monthlyFeeManagementModal').classList.add('hidden');
+        });
+        async function markMonthlyFeeAsPaid(recordId, studentId) {
+            if(!confirm("ยืนยันการเปลี่ยนสถานะเป็นจ่ายแล้ว?")) return;
+            showLoading();
+            try {
+                const newRecord = {
+                    id: recordId,
+                    feeId: currentMonthlyFee.id,
+                    studentId: studentId,
+                    isPaid: true,
+                    paidDate: new Date().toISOString().split('T')[0]
+                };
+                await database.ref('monthlyFeeRecords').child(recordId).set(newRecord);
+
+                const recordIndex = monthlyFeeRecords.findIndex(r => r.id === recordId);
+                if(recordIndex > -1){
+                    monthlyFeeRecords[recordIndex] = newRecord;
+                } else {
+                    monthlyFeeRecords.push(newRecord);
+                }
+
+                alert("บันทึกสถานะจ่ายแล้วเรียบร้อย");
+                openMonthlyFeeManagementModal(currentMonthlyFee.id); // Refresh modal
+
+            } catch(error) {
+                console.error("Error marking monthly fee as paid: ", error);
+                alert("เกิดข้อผิดพลาดในการบันทึก");
+            } finally {
+                hideLoading();
+            }
+        }
+        async function unmarkMonthlyFeeAsPaid(recordId, studentId) {
+            if(!confirm("ยืนยันการเปลี่ยนสถานะเป็นยังไม่จ่าย?")) return;
+            showLoading();
+            try {
+                const newRecord = {
+                    id: recordId,
+                    feeId: currentMonthlyFee.id,
+                    studentId: studentId,
+                    isPaid: false,
+                    paidDate: ""
+                };
+                await database.ref('monthlyFeeRecords').child(recordId).set(newRecord);
+
+                const recordIndex = monthlyFeeRecords.findIndex(r => r.id === recordId);
+                if(recordIndex > -1){
+                    monthlyFeeRecords[recordIndex] = newRecord;
+                } else {
+                    monthlyFeeRecords.push(newRecord);
+                }
+
+                alert("เปลี่ยนสถานะเป็นยังไม่จ่ายเรียบร้อย");
+                openMonthlyFeeManagementModal(currentMonthlyFee.id); // Refresh modal
+
+            } catch(error) {
+                console.error("Error unmarking monthly fee as paid: ", error);
+                alert("เกิดข้อผิดพลาดในการบันทึก");
+            } finally {
+                hideLoading();
+            }
         }
         
         // Initialize the app when the document loads
