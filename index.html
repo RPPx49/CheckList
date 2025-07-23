@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -474,6 +475,9 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับรายเดือน</th>
                                         </tr>
                                     </thead>
+                                    <button id="exportSummaryExcelBtn" class="mb-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                        ส่งออก Excel
+                                    </button>
                                     <tbody id="adminSummaryList" class="bg-white divide-y divide-gray-200">
                                         </tbody>
                                 </table>
@@ -1598,7 +1602,28 @@
                 `;
             });
         }
+        // ...existing code...
 
+        document.getElementById('exportSummaryExcelBtn')?.addEventListener('click', function() {
+            // เลือกตารางที่ต้องการส่งออก (adminSummaryList หรือ leaderSummaryList)
+            const table = document.getElementById('adminSummaryList') || document.getElementById('leaderSummaryList');
+            if (!table) return;
+
+            // ดึงหัวตาราง
+            const headers = Array.from(table.parentElement.querySelector('thead tr').children).map(th => th.innerText.trim());
+            // ดึงข้อมูลแต่ละแถว
+            const rows = Array.from(table.children).map(tr => Array.from(tr.children).map(td => td.innerText.trim()));
+
+            // รวมเป็น array สำหรับ excel
+            const data = [headers, ...rows];
+
+            // สร้างไฟล์ excel
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Summary");
+            XLSX.writeFile(wb, "summary.xlsx");
+        });
+        // ...existing code...
         // ---- Monthly Fee Functions ----
         function showMonthlyFeePage() {
             document.getElementById('adminDashboard').classList.add('hidden');
