@@ -1525,12 +1525,14 @@
             const userMonthlyFeeRecords = monthlyFeeRecords.filter(rec => rec.studentId === studentId && !rec.isPaid);
             userMonthlyFeeRecords.forEach(record => {
                 const fee = monthlyFees.find(f => f.id === record.feeId);
-                if(fee){
+                if (fee) {
                     const dueDate = new Date(fee.month + "-01");
-                    dueDate.setMonth(dueDate.getMonth() + 1, 0); 
-                    if (new Date() > dueDate) {
-                        totalMonthlyFine += 30; // Add late fee
+                    dueDate.setMonth(dueDate.getMonth() + 1, 0);
+                    let fineAmount = (typeof record.fineAmount === "number") ? record.fineAmount : 0;
+                    if (!record.isPaid && new Date() > dueDate && fineAmount === 0) {
+                        fineAmount = 30;
                     }
+                    totalMonthlyFine += fineAmount;
                 }
             });
 
