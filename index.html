@@ -1022,6 +1022,7 @@
                     <td class="px-6 py-4 whitespace-nowrap">${formatDate(activity.date)}</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <button class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm mr-2" onclick="openAttendanceModal(${activity.id})">เช็คชื่อ</button>
+                        <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm" onclick="deleteActivity(${activity.id})">ลบ</button>
                     </td>
                 `;
             });
@@ -1478,7 +1479,30 @@
                 users[userIndex].totalFineAmount = totalOutstandingFine;
             }
         }
+        async function deleteActivity(activityId) {
+            if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการลบกิจกรรมนี้?')) return;
+            showLoading();
+            try {
+                // ลบกิจกรรม
+                await database.ref('activities').child(activityId).remove();
+                activities = activities.filter(act => act.id !== activityId);
 
+                // ลบ attendance ที่เกี่ยวข้อง
+                const attendanceToDelete = attendance.filter(rec => rec.activityId === activityId);
+                for (const rec of attendanceToDelete) {
+                    await database.ref('attendance').child(rec.id).remove();
+                }
+                attendance = attendance.filter(rec => rec.activityId !== activityId);
+
+                alert('ลบกิจกรรมและข้อมูลที่เกี่ยวข้องเรียบร้อยแล้ว');
+                if (currentUser.role === 'admin') loadAdminData();
+                else if (currentUser.role === 'leader') loadLeaderData();
+            } catch (error) {
+                alert('เกิดข้อผิดพลาดในการลบกิจกรรม');
+            } finally {
+                hideLoading();
+            }
+        }
         // Generate and display summary report for Leader/Admin
         async function loadSummaryReport(tableId) {
             const summaryTable = document.getElementById(tableId);
