@@ -166,6 +166,12 @@
                         </table>
                     </div>
                 </div>
+
+                <div id="treasurerQRSection" class="my-6 flex flex-col items-center">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">QR โอนเงินเหรัญญิกประจำห้อง</h3>
+                    <img id="treasurerQRImg" src="" alt="QR เหรัญญิก" class="w-48 h-48 object-contain border rounded-lg shadow">
+                    <div id="treasurerQRNote" class="mt-2 text-gray-600 text-sm"></div>
+                </div>
             </div>
         </div>
 
@@ -798,6 +804,20 @@
                     `;
                 }
             });
+
+            // แสดง QR เหรัญญิกแต่ละห้อง
+            const qrImg = document.getElementById('treasurerQRImg');
+            const qrNote = document.getElementById('treasurerQRNote');
+            if (currentUser.class === "1") {
+                qrImg.src = "qr1.jpg";
+                qrNote.textContent = "เหรัญญิกห้อง 1: นายกอร์น (โทร 0xx-xxx-xxxx)";
+            } else if (currentUser.class === "2") {
+                qrImg.src = "qr2.jpg";
+                qrNote.textContent = "เหรัญญิกห้อง 2: นายแมทธิว (โทร 0xx-xxx-xxxx)";
+            } else {
+                qrImg.src = "";
+                qrNote.textContent = "ไม่พบข้อมูลเหรัญญิกสำหรับห้องนี้";
+            }
         }
 
 
