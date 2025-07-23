@@ -336,6 +336,11 @@
                                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ค่าปรับรายเดือน</th>
                                         </tr>
                                     </thead>
+                                    <!-- ...existing code... -->
+                                    <button id="exportSummaryExcelBtn" class="mb-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                        ส่งออก Excel
+                                    </button>
+                                    <!-- ...existing code... -->
                                     <tbody id="leaderSummaryList" class="bg-white divide-y divide-gray-200">
                                         </tbody>
                                 </table>
@@ -937,6 +942,8 @@
                 dueDate.setMonth(dueDate.getMonth() + 1, 0); // Last day of the month
                 const today = new Date();
                 const isOverdue = today > dueDate;
+
+                // ดึงค่าปรับจาก record ถ้ามี
                 let fineAmount = record && typeof record.fineAmount === "number" ? record.fineAmount : 0;
                 let fineNote = '';
                 if (!isPaid && isOverdue && fineAmount === 0) {
